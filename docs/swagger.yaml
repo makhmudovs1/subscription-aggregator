@@ -1,0 +1,219 @@
+definitions:
+  subscription.CreateSubscriptionRequest:
+    properties:
+      end_date:
+        description: '"12-2025"'
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        description: '"07-2025"'
+        type: string
+      user_id:
+        type: string
+    type: object
+  subscription.Subscription:
+    properties:
+      end_date:
+        type: string
+      id:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  subscription.UpdateSubscriptionRequest:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /subscriptions:
+    get:
+      description: Возвращает список всех подписок
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/subscription.Subscription'
+            type: array
+        "500":
+          description: failed to get subscriptions
+          schema:
+            type: string
+      summary: Получить все подписки
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Создаёт запись о подписке для пользователя
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/subscription.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid request
+          schema:
+            type: string
+        "500":
+          description: failed to insert subscription
+          schema:
+            type: string
+      summary: Создать новую подписку
+      tags:
+      - subscriptions
+  /subscriptions/{id}:
+    delete:
+      description: Удаляет подписку по id
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "404":
+          description: subscription not found
+          schema:
+            type: string
+        "500":
+          description: db error
+          schema:
+            type: string
+      summary: Удалить подписку
+      tags:
+      - subscriptions
+    get:
+      description: Возвращает данные подписки по её id
+      parameters:
+      - description: ID подписки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/subscription.Subscription'
+        "404":
+          description: subscription not found
+          schema:
+            type: string
+      summary: Получить подписку по ID
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Обновляет поля существующей подписки по id
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/subscription.UpdateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "400":
+          description: invalid request
+          schema:
+            type: string
+        "404":
+          description: subscription not found
+          schema:
+            type: string
+        "500":
+          description: failed to update
+          schema:
+            type: string
+      summary: Обновить подписку
+      tags:
+      - subscriptions
+  /subscriptions/total:
+    get:
+      description: Считает сумму всех подписок c фильтрами по user_id, service_name
+        и start_date
+      parameters:
+      - description: ID пользователя (UUID)
+        in: query
+        name: user_id
+        type: string
+      - description: Название сервиса
+        in: query
+        name: service_name
+        type: string
+      - description: Дата начала (ММ-ГГГГ)
+        in: query
+        name: start_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: total сумма
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: invalid start_date format
+          schema:
+            type: string
+        "500":
+          description: db error
+          schema:
+            type: string
+      summary: Получить сумму всех подписок
+      tags:
+      - subscriptions
+swagger: "2.0"
